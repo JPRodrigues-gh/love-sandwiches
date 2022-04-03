@@ -3,7 +3,8 @@
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 import gspread
 from google.oauth2.service_account import Credentials
-from pprint import pprint
+# pprint not needed for Heroku deployment - used to test print to console 
+# from pprint import pprint
 
 SCOPE = [
   "https://www.googleapis.com/auth/spreadsheets",
@@ -28,7 +29,7 @@ def get_sales_data():
         print("Data should be six numbers, seperated by commas.")
         print("Example: 10, 20, 30, 40, 50, 60\n")
 
-        data_str = input("Enter your data here: ")
+        data_str = input("Enter your data here:\n ")
         # print(f"Data provided is {data_str}")
         sales_data = data_str.split(',')
 
@@ -116,6 +117,21 @@ def get_last_five_entries(worksheet, col_num):
 
     return columns
 
+def calculate_stock_data(columns):
+    """
+    Calculate the average stock for each item type, adding 10%
+    """
+    print("Calculating stock data...\n")
+    new_stock_data = []
+
+    for column in columns:
+        int_column = [int (num) for num in column]
+        average = sum(int_column) / len(int_column)
+        stock_num = round(average * 1.1)
+        new_stock_data.append(stock_num)
+    
+    return new_stock_data
+
 def main():
     """
     The main function that runs all other program functions
@@ -128,7 +144,10 @@ def main():
     # print(new_surplus_data)
     # update_surplus_worksheet(new_surplus_data)
     update_worksheet(new_surplus_data, "surplus")
+    sales_columns = get_last_five_entries("sales", 3)
+    stock_data = calculate_stock_data(sales_columns)
+    update_worksheet(stock_data, "stock")
+
 
 print("Welcome to Love Sandwiches data automation")
-# main()
-sales_columns = get_last_five_entries("sales", 3)
+main()
